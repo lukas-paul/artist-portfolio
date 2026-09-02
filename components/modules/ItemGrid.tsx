@@ -1,0 +1,91 @@
+import { CmsLink } from "@/components/ui/CmsLink";
+import { ItemCard } from "@/components/modules/ItemCard";
+import { InfiniteItemGrid } from "@/components/modules/InfiniteItemGrid";
+import { columnClasses } from "@/components/modules/gridColumns";
+import { client } from "@/sanity/lib/client";
+import { dataAttr } from "@/sanity/lib/dataAttr";
+import { ACTIVE_ITEMS_PAGE_QUERY } from "@/sanity/lib/queries";
+import type { ItemGridModule } from "@/sanity/lib/types";
+
+export async function ItemGrid({
+  module,
+  documentId,
+}: {
+  module: ItemGridModule;
+  documentId: string;
+}) {
+  const columns = module.columns ?? "3";
+  const root = `modules[_key=="${module._key}"]`;
+
+  const heading = module.heading && (
+    <h2
+      data-sanity={dataAttr({ id: documentId, type: "page", path: `${root}.heading` })}
+      className="mb-8 text-2xl font-semibold tracking-tight"
+    >
+      {module.heading}
+    </h2>
+  );
+
+  if (module.source === "all-active") {
+    const pageSize = module.pageSize ?? 12;
+    const firstPage = await client.fetch(ACTIVE_ITEMS_PAGE_QUERY, {
+      start: 0,
+      end: pageSize,
+    });
+
+    return (
+      <section
+        data-sanity={dataAttr({ id: documentId, type: "page", path: root })}
+        className="mx-auto max-w-5xl px-6 py-16"
+      >
+        {heading}
+        <InfiniteItemGrid initialItems={firstPage} pageSize={pageSize} columns={columns} />
+      </section>
+    );
+  }
+
+  const items = (module.items ?? []).filter(
+    (item) => !(item._type === "item" && item.active === false)
+  );
+
+  return (
+    <section
+      data-sanity={dataAttr({ id: documentId, type: "page", path: root })}
+      className="mx-auto max-w-5xl px-6 py-16"
+    >
+      {heading}
+      <div className={`grid gap-8 ${columnClasses[columns]}`}>
+        {items.map((item) => {
+          // Referenced Items are edited on the Item document itself; inline
+          // "Custom card" entries are edited in place within this module.
+          const cardId = item._type === "item" ? item._id : documentId;
+          const cardType = item._type === "item" ? "item" : "page";
+          const fieldPath = (field: string) =>
+            item._type === "item"
+              ? field
+              : `${root}.items[_key=="${item._key}"].${field}`;
+
+          const card = (
+            <ItemCard
+              image={item.image}
+              title={item.title}
+              text={item.text}
+              date={item._type === "item" ? item.date : undefined}
+              dataSanityImage={dataAttr({ id: cardId, type: cardType, path: fieldPath("image") })}
+              dataSanityTitle={dataAttr({ id: cardId, type: cardType, path: fieldPath("title") })}
+              dataSanityText={dataAttr({ id: cardId, type: cardType, path: fieldPath("text") })}
+            />
+          );
+
+          return item._type === "gridItem" && item.link ? (
+            <CmsLink key={item._key} link={item.link} className="block">
+              {card}
+            </CmsLink>
+          ) : (
+            <div key={item._key}>{card}</div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
