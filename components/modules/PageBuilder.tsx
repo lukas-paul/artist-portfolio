@@ -3,6 +3,7 @@ import { Cta } from "@/components/modules/Cta";
 import { Hero } from "@/components/modules/Hero";
 import { ItemGrid } from "@/components/modules/ItemGrid";
 import { Media } from "@/components/modules/Media";
+import { PageHero } from "@/components/modules/PageHero";
 import { TextBlock } from "@/components/modules/TextBlock";
 import { TextMedia } from "@/components/modules/TextMedia";
 import type { PageModule } from "@/sanity/lib/types";
@@ -22,6 +23,8 @@ export function PageBuilder({
         switch (module._type) {
           case "hero":
             return <Hero key={module._key} module={module} documentId={documentId} />;
+          case "pageHero":
+            return <PageHero key={module._key} module={module} documentId={documentId} />;
           case "textBlock":
             return <TextBlock key={module._key} module={module} documentId={documentId} />;
           case "textMedia":

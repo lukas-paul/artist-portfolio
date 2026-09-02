@@ -1,5 +1,5 @@
 import type {
-  ACTIVE_ITEMS_PAGE_QUERY_RESULT,
+  ACTIVE_ARTWORKS_PAGE_QUERY_RESULT,
   NAV_PAGES_QUERY_RESULT,
   PAGE_QUERY_RESULT,
   SITE_SETTINGS_QUERY_RESULT,
@@ -8,6 +8,7 @@ import type {
 export type PageData = NonNullable<PAGE_QUERY_RESULT>;
 export type PageModule = NonNullable<PageData["modules"]>[number];
 export type HeroModule = Extract<PageModule, { _type: "hero" }>;
+export type PageHeroModule = Extract<PageModule, { _type: "pageHero" }>;
 export type TextBlockModule = Extract<PageModule, { _type: "textBlock" }>;
 export type TextMediaModule = Extract<PageModule, { _type: "textMedia" }>;
 export type AccordionModule = Extract<PageModule, { _type: "accordion" }>;
@@ -16,7 +17,7 @@ export type MediaModule = Extract<PageModule, { _type: "media" }>;
 export type CtaModule = Extract<PageModule, { _type: "cta" }>;
 export type AccordionItem = NonNullable<AccordionModule["items"]>[number];
 export type GridItem = NonNullable<ItemGridModule["items"]>[number];
-export type ActiveItem = ACTIVE_ITEMS_PAGE_QUERY_RESULT[number];
+export type ActiveArtwork = ACTIVE_ARTWORKS_PAGE_QUERY_RESULT[number];
 
 export type RichText = TextBlockModule["content"];
 export type RichTextImage = Extract<RichText[number], { _type: "richTextImage" }>;

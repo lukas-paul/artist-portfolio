@@ -1,4 +1,5 @@
-import { CmsLink } from "@/components/ui/CmsLink";
+import { HeroContent, usableLink } from "@/components/modules/HeroContent";
+import { HeroSlider } from "@/components/modules/HeroSlider";
 import { SanityImage } from "@/components/ui/SanityImage";
 import { VideoEmbed } from "@/components/ui/VideoEmbed";
 import { dataAttr } from "@/sanity/lib/dataAttr";
@@ -12,21 +13,37 @@ export function Hero({
   module: HeroModule;
   documentId: string;
 }) {
+  const slides = module.slides ?? [];
+  const hasImages = module.backgroundType === "image" && slides.length > 0;
+  const isSlider = hasImages && slides.length > 1;
   const hasMedia =
-    (module.backgroundType === "image" && module.backgroundImage) ||
+    hasImages ||
     (module.backgroundType === "video" && hasPlayableVideo(module.backgroundVideo));
   const root = `modules[_key=="${module._key}"]`;
-  const path = (field: string) => `${root}.${field}`;
+  const sanity = (path: string) => dataAttr({ id: documentId, type: "page", path });
+
+  // Single slide (or a static image): resolve its fields, falling back to the module.
+  const single = hasImages && !isSlider ? slides[0] : null;
 
   return (
     <section
-      data-sanity={dataAttr({ id: documentId, type: "page", path: root })}
-      className="relative flex min-h-[70vh] items-end overflow-hidden bg-black text-white"
+      data-sanity={sanity(root)}
+      className="relative flex min-h-[85vh] items-end overflow-hidden bg-black text-white"
     >
-      {module.backgroundType === "image" && module.backgroundImage && (
+      {isSlider && (
+        <HeroSlider
+          slides={slides}
+          fallbackHeadline={module.headline}
+          fallbackText={module.text}
+          fallbackLink={module.link}
+          documentId={documentId}
+          moduleKey={module._key}
+        />
+      )}
+      {single && (
         <SanityImage
-          image={module.backgroundImage}
-          alt={module.headline}
+          image={single.image}
+          alt={single.headline || module.headline}
           className="object-cover opacity-80"
           priority
         />
@@ -37,32 +54,23 @@ export function Hero({
           className="absolute inset-0 h-full w-full object-cover opacity-80"
         />
       )}
-      {hasMedia && (
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+      {hasMedia && !isSlider && (
+        <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
       )}
 
-      <div className="relative mx-auto w-full max-w-5xl px-6 py-16">
-        <h1
-          data-sanity={dataAttr({ id: documentId, type: "page", path: path("headline") })}
-          className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-6xl"
-        >
-          {module.headline}
-        </h1>
-        {module.text && (
-          <p
-            data-sanity={dataAttr({ id: documentId, type: "page", path: path("text") })}
-            className="mt-4 max-w-xl text-lg opacity-80"
-          >
-            {module.text}
-          </p>
-        )}
-        {module.link && (
-          <CmsLink
-            link={module.link}
-            className="mt-8 inline-block border border-white px-6 py-3 text-sm hover:bg-white hover:text-black"
-          />
-        )}
-      </div>
+      {!isSlider && (
+        <HeroContent
+          headline={single?.headline || module.headline}
+          text={single?.text || module.text}
+          link={usableLink(single?.link) ? single?.link : module.link}
+          headlineDataSanity={sanity(
+            single ? `${root}.slides[_key=="${single._key}"].headline` : `${root}.headline`
+          )}
+          textDataSanity={sanity(
+            single ? `${root}.slides[_key=="${single._key}"].text` : `${root}.text`
+          )}
+        />
+      )}
     </section>
   );
 }

@@ -10,17 +10,31 @@ export function TextBlock({
   documentId: string;
 }) {
   const root = `modules[_key=="${module._key}"]`;
+  const widthClass = module.width === "wide" ? "max-w-3xl" : "max-w-xl";
 
   return (
     <section
       data-sanity={dataAttr({ id: documentId, type: "page", path: root })}
       className="mx-auto max-w-5xl px-6 py-16"
     >
-      <PortableTextContent
-        value={module.content}
-        className={module.width === "wide" ? "max-w-3xl" : "max-w-xl"}
-        dataSanity={dataAttr({ id: documentId, type: "page", path: `${root}.content` })}
-      />
+      <div className={widthClass}>
+        {module.heading && (
+          <h2
+            data-sanity={dataAttr({
+              id: documentId,
+              type: "page",
+              path: `${root}.heading`,
+            })}
+            className="mb-6 text-2xl font-semibold tracking-tight"
+          >
+            {module.heading}
+          </h2>
+        )}
+        <PortableTextContent
+          value={module.content}
+          dataSanity={dataAttr({ id: documentId, type: "page", path: `${root}.content` })}
+        />
+      </div>
     </section>
   );
 }

@@ -44,6 +44,7 @@ export const page = defineType({
       type: "array",
       of: [
         defineArrayMember({ type: "hero" }),
+        defineArrayMember({ type: "pageHero" }),
         defineArrayMember({ type: "textBlock" }),
         defineArrayMember({ type: "textMedia" }),
         defineArrayMember({ type: "accordion" }),

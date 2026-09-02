@@ -32,11 +32,11 @@ export const itemGrid = defineType({
       title: "Source",
       type: "string",
       description:
-        "Manually pick items/cards below, or automatically show every active Item.",
+        "Manually pick artworks/cards below, or automatically show every active Artwork.",
       options: {
         list: [
           { title: "Manually selected", value: "manual" },
-          { title: "All active items", value: "all-active" },
+          { title: "All active artworks", value: "all-active" },
         ],
         layout: "radio",
       },
@@ -59,8 +59,8 @@ export const itemGrid = defineType({
       of: [
         defineArrayMember({
           type: "reference",
-          title: "Reference an Item",
-          to: [{ type: "item" }],
+          title: "Reference an Artwork",
+          to: [{ type: "artwork" }],
         }),
         defineArrayMember({
           type: "object",

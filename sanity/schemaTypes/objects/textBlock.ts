@@ -8,6 +8,12 @@ export const textBlock = defineType({
   icon: DocumentTextIcon,
   fields: [
     defineField({
+      name: "heading",
+      title: "Heading",
+      type: "string",
+      description: "Optional. Shown above the text.",
+    }),
+    defineField({
       name: "content",
       title: "Content",
       type: "blockContent",
@@ -28,13 +34,13 @@ export const textBlock = defineType({
     }),
   ],
   preview: {
-    select: { content: "content" },
-    prepare({ content }) {
+    select: { heading: "heading", content: "content" },
+    prepare({ heading, content }) {
       const firstBlock = content?.find((block: { _type: string }) => block._type === "block");
       const text = firstBlock?.children
         ?.map((child: { text: string }) => child.text)
         .join("");
-      return { title: text || "Text", subtitle: "Text" };
+      return { title: heading || text || "Text", subtitle: "Text" };
     },
   },
 });

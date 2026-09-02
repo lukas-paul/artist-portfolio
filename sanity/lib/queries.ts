@@ -28,13 +28,24 @@ const moduleFields = /* groq */ `
   _key,
   _type == "hero" => {
     backgroundType,
-    backgroundImage,
+    slides[]{
+      _key,
+      image,
+      headline,
+      text,
+      link{ ${linkFields} }
+    },
     backgroundVideo{ ${videoSourceFields} },
     headline,
     text,
     link{ ${linkFields} }
   },
+  _type == "pageHero" => {
+    headline,
+    image
+  },
   _type == "textBlock" => {
+    heading,
     content[]{ ${blockContentFields} },
     width
   },
@@ -60,8 +71,11 @@ const moduleFields = /* groq */ `
         _type,
         _id,
         title,
-        text,
-        date,
+        year,
+        dimensions,
+        type,
+        category,
+        price,
         image,
         active
       },
@@ -109,15 +123,23 @@ export const NAV_PAGES_QUERY = defineQuery(/* groq */ `
   }
 `);
 
-export const ACTIVE_ITEMS_PAGE_QUERY = defineQuery(/* groq */ `
-  *[_type == "item" && active == true]
-    | order(coalesce(date, "0000-00-00") desc)
+export const ACTIVE_ARTWORKS_PAGE_QUERY = defineQuery(/* groq */ `
+  *[
+    _type == "artwork" && active == true
+    && ($category == "all" || category == $category)
+    && ($forSaleOnly != true || forSale == true)
+  ]
+    | order(coalesce(year, 0) desc)
     [$start...$end]{
       _type,
       _id,
       title,
-      text,
-      date,
+      year,
+      dimensions,
+      type,
+      category,
+      price,
+      forSale,
       image
     }
 `);

@@ -4,7 +4,7 @@ import { InfiniteItemGrid } from "@/components/modules/InfiniteItemGrid";
 import { columnClasses } from "@/components/modules/gridColumns";
 import { client } from "@/sanity/lib/client";
 import { dataAttr } from "@/sanity/lib/dataAttr";
-import { ACTIVE_ITEMS_PAGE_QUERY } from "@/sanity/lib/queries";
+import { ACTIVE_ARTWORKS_PAGE_QUERY } from "@/sanity/lib/queries";
 import type { ItemGridModule } from "@/sanity/lib/types";
 
 export async function ItemGrid({
@@ -28,9 +28,11 @@ export async function ItemGrid({
 
   if (module.source === "all-active") {
     const pageSize = module.pageSize ?? 12;
-    const firstPage = await client.fetch(ACTIVE_ITEMS_PAGE_QUERY, {
+    const firstPage = await client.fetch(ACTIVE_ARTWORKS_PAGE_QUERY, {
       start: 0,
       end: pageSize,
+      category: "all",
+      forSaleOnly: false,
     });
 
     return (
@@ -45,7 +47,7 @@ export async function ItemGrid({
   }
 
   const items = (module.items ?? []).filter(
-    (item) => !(item._type === "item" && item.active === false)
+    (item) => !(item._type === "artwork" && item.active === false)
   );
 
   return (
@@ -56,12 +58,13 @@ export async function ItemGrid({
       {heading}
       <div className={`grid gap-8 ${columnClasses[columns]}`}>
         {items.map((item) => {
-          // Referenced Items are edited on the Item document itself; inline
+          // Referenced Artworks are edited on the Artwork document itself; inline
           // "Custom card" entries are edited in place within this module.
-          const cardId = item._type === "item" ? item._id : documentId;
-          const cardType = item._type === "item" ? "item" : "page";
+          const isArtwork = item._type === "artwork";
+          const cardId = isArtwork ? item._id : documentId;
+          const cardType = isArtwork ? "artwork" : "page";
           const fieldPath = (field: string) =>
-            item._type === "item"
+            isArtwork
               ? field
               : `${root}.items[_key=="${item._key}"].${field}`;
 
@@ -69,8 +72,11 @@ export async function ItemGrid({
             <ItemCard
               image={item.image}
               title={item.title}
-              text={item.text}
-              date={item._type === "item" ? item.date : undefined}
+              text={isArtwork ? undefined : item.text}
+              year={isArtwork ? item.year : undefined}
+              dimensions={isArtwork ? item.dimensions : undefined}
+              type={isArtwork ? item.type : undefined}
+              price={isArtwork ? item.price : undefined}
               dataSanityImage={dataAttr({ id: cardId, type: cardType, path: fieldPath("image") })}
               dataSanityTitle={dataAttr({ id: cardId, type: cardType, path: fieldPath("title") })}
               dataSanityText={dataAttr({ id: cardId, type: cardType, path: fieldPath("text") })}

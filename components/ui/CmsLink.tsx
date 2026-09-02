@@ -1,6 +1,6 @@
 import NextLink from "next/link";
 
-interface LinkLike {
+export interface LinkLike {
   label: string;
   linkType?: "internal" | "external" | null;
   externalUrl?: string | null;
