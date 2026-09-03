@@ -239,6 +239,7 @@ export type Artwork = {
   _updatedAt: string;
   _rev: string;
   title: string;
+  slug: Slug;
   year?: number;
   dimensions?: string;
   type?: string;
@@ -271,6 +272,12 @@ export type SanityImageHotspot = {
   width: number;
 };
 
+export type Slug = {
+  _type: "slug";
+  current: string;
+  source?: string;
+};
+
 export type SiteSettings = {
   _id: string;
   _type: "siteSettings";
@@ -286,6 +293,7 @@ export type SiteSettings = {
     crop?: SanityImageCrop;
     _type: "image";
   };
+  footerContent?: BlockContent;
   footerText?: string;
   footerLinks?: Array<
     {
@@ -336,12 +344,6 @@ export type Page = {
       } & Cta)
   >;
   seo?: Seo;
-};
-
-export type Slug = {
-  _type: "slug";
-  current: string;
-  source?: string;
 };
 
 export type SanityImagePaletteSwatch = {
@@ -464,9 +466,9 @@ export type AllSanitySchemaTypes =
   | Artwork
   | SanityImageCrop
   | SanityImageHotspot
+  | Slug
   | SiteSettings
   | Page
-  | Slug
   | SanityImagePaletteSwatch
   | SanityImagePalette
   | SanityImageDimensions
@@ -478,7 +480,7 @@ export type AllSanitySchemaTypes =
 
 // Source: sanity/lib/queries.ts
 // Variable: PAGE_QUERY
-// Query: *[_type == "page" && slug.current == $slug][0]{    _id,    title,    "slug": slug.current,    modules[]{   _type,  _key,  _type == "hero" => {    backgroundType,    slides[]{      _key,      image,      headline,      text,      link{   _key,  label,  linkType,  openInNewTab,  externalUrl,  internalLink->{ "slug": slug.current } }    },    backgroundVideo{   sourceType,  file{ asset-> },  url },    headline,    text,    link{   _key,  label,  linkType,  openInNewTab,  externalUrl,  internalLink->{ "slug": slug.current } }  },  _type == "pageHero" => {    headline,    image  },  _type == "textBlock" => {    heading,    content[]{   ...,  _type == "richTextImage" => {    ...,    asset->  } },    width  },  _type == "textMedia" => {    mediaType,    image,    video{   sourceType,  file{ asset-> },  url },    content[]{   ...,  _type == "richTextImage" => {    ...,    asset->  } },    mediaPosition  },  _type == "accordion" => {    heading,    items[]{ _key, title, content[]{   ...,  _type == "richTextImage" => {    ...,    asset->  } } }  },  _type == "itemGrid" => {    heading,    columns,    source,    pageSize,    items[]{      _key,      _type == "reference" => @->{        _type,        _id,        title,        year,        dimensions,        type,        category,        price,        image,        active      },      _type == "gridItem" => {        _type,        image,        title,        text,        link{   _key,  label,  linkType,  openInNewTab,  externalUrl,  internalLink->{ "slug": slug.current } }      }    }  },  _type == "media" => {    mediaType,    image,    video{   sourceType,  file{ asset-> },  url },    caption  },  _type == "cta" => {    heading,    text,    link{   _key,  label,  linkType,  openInNewTab,  externalUrl,  internalLink->{ "slug": slug.current } },    background  } },    seo  }
+// Query: *[_type == "page" && slug.current == $slug][0]{    _id,    title,    "slug": slug.current,    modules[]{   _type,  _key,  _type == "hero" => {    backgroundType,    slides[]{      _key,      image,      headline,      text,      link{   _key,  label,  linkType,  openInNewTab,  externalUrl,  internalLink->{ "slug": slug.current } }    },    backgroundVideo{   sourceType,  file{ asset-> },  url },    headline,    text,    link{   _key,  label,  linkType,  openInNewTab,  externalUrl,  internalLink->{ "slug": slug.current } }  },  _type == "pageHero" => {    headline,    image  },  _type == "textBlock" => {    heading,    content[]{   ...,  _type == "richTextImage" => {    ...,    asset->  } },    width  },  _type == "textMedia" => {    mediaType,    image,    video{   sourceType,  file{ asset-> },  url },    content[]{   ...,  _type == "richTextImage" => {    ...,    asset->  } },    mediaPosition  },  _type == "accordion" => {    heading,    items[]{ _key, title, content[]{   ...,  _type == "richTextImage" => {    ...,    asset->  } } }  },  _type == "itemGrid" => {    heading,    columns,    source,    pageSize,    items[]{      _key,      _type == "reference" => @->{          _type,  _id,  title,  "slug": slug.current,  year,  dimensions,  type,  category,  price,  forSale,  image,        active      },      _type == "gridItem" => {        _type,        image,        title,        text,        link{   _key,  label,  linkType,  openInNewTab,  externalUrl,  internalLink->{ "slug": slug.current } }      }    }  },  _type == "media" => {    mediaType,    image,    video{   sourceType,  file{ asset-> },  url },    caption  },  _type == "cta" => {    heading,    text,    link{   _key,  label,  linkType,  openInNewTab,  externalUrl,  internalLink->{ "slug": slug.current } },    background  } },    seo  }
 export type PAGE_QUERY_RESULT = {
   _id: string;
   title: string;
@@ -635,11 +637,13 @@ export type PAGE_QUERY_RESULT = {
               _type: "artwork";
               _id: string;
               title: string;
+              slug: string;
               year: number | null;
               dimensions: string | null;
               type: string | null;
               category: "draussen" | "spuren" | "stories" | null;
               price: number | null;
+              forSale: boolean | null;
               image: {
                 asset?: SanityImageAssetReference;
                 media?: unknown;
@@ -891,11 +895,12 @@ export type NAV_PAGES_QUERY_RESULT = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: ACTIVE_ARTWORKS_PAGE_QUERY
-// Query: *[    _type == "artwork" && active == true    && ($category == "all" || category == $category)    && ($forSaleOnly != true || forSale == true)  ]    | order(coalesce(year, 0) desc)    [$start...$end]{      _type,      _id,      title,      year,      dimensions,      type,      category,      price,      forSale,      image    }
+// Query: *[    _type == "artwork" && active == true    && ($category == "all" || category == $category)    && ($forSaleOnly != true || forSale == true)  ]    | order(coalesce(year, 0) desc)    [$start...$end]{        _type,  _id,  title,  "slug": slug.current,  year,  dimensions,  type,  category,  price,  forSale,  image    }
 export type ACTIVE_ARTWORKS_PAGE_QUERY_RESULT = Array<{
   _type: "artwork";
   _id: string;
   title: string;
+  slug: string;
   year: number | null;
   dimensions: string | null;
   type: string | null;
@@ -912,8 +917,38 @@ export type ACTIVE_ARTWORKS_PAGE_QUERY_RESULT = Array<{
 }>;
 
 // Source: sanity/lib/queries.ts
+// Variable: ARTWORK_SLUGS_QUERY
+// Query: *[_type == "artwork" && active == true && defined(slug.current)]{    "slug": slug.current  }
+export type ARTWORK_SLUGS_QUERY_RESULT = Array<{
+  slug: string;
+}>;
+
+// Source: sanity/lib/queries.ts
+// Variable: ARTWORK_QUERY
+// Query: *[_type == "artwork" && slug.current == $slug && active == true][0]{    _id,    title,    "slug": slug.current,    year,    dimensions,    type,    category,    price,    forSale,    image{      ...,      "dimensions": asset->metadata.dimensions    }  }
+export type ARTWORK_QUERY_RESULT = {
+  _id: string;
+  title: string;
+  slug: string;
+  year: number | null;
+  dimensions: string | null;
+  type: string | null;
+  category: "draussen" | "spuren" | "stories" | null;
+  price: number | null;
+  forSale: boolean | null;
+  image: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+    dimensions: SanityImageDimensions | null;
+  } | null;
+} | null;
+
+// Source: sanity/lib/queries.ts
 // Variable: SITE_SETTINGS_QUERY
-// Query: *[_type == "siteSettings"][0]{    title,    description,    logo,    footerText,    footerLinks[]{   _key,  label,  linkType,  openInNewTab,  externalUrl,  internalLink->{ "slug": slug.current } },    socialLinks[]{   _key,  label,  linkType,  openInNewTab,  externalUrl,  internalLink->{ "slug": slug.current } }  }
+// Query: *[_type == "siteSettings"][0]{    title,    description,    logo,    footerText,    footerContent[]{   ...,  _type == "richTextImage" => {    ...,    asset->  } },    footerLinks[]{   _key,  label,  linkType,  openInNewTab,  externalUrl,  internalLink->{ "slug": slug.current } },    socialLinks[]{   _key,  label,  linkType,  openInNewTab,  externalUrl,  internalLink->{ "slug": slug.current } }  }
 export type SITE_SETTINGS_QUERY_RESULT = {
   title: string;
   description: string | null;
@@ -925,6 +960,58 @@ export type SITE_SETTINGS_QUERY_RESULT = {
     _type: "image";
   } | null;
   footerText: string | null;
+  footerContent: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "blockquote" | "h2" | "h3" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          openInNewTab?: boolean;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }
+    | {
+        _key: string;
+        _type: "richTextImage";
+        asset: {
+          _id: string;
+          _type: "sanity.imageAsset";
+          _createdAt: string;
+          _updatedAt: string;
+          _rev: string;
+          originalFilename?: string;
+          label?: string;
+          title?: string;
+          description?: string;
+          altText?: string;
+          sha1hash: string;
+          extension: string;
+          mimeType: string;
+          size: number;
+          assetId: string;
+          uploadId?: string;
+          path: string;
+          url: string;
+          metadata?: SanityImageMetadata;
+          source?: SanityAssetSourceData;
+        } | null;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        alt?: string;
+        caption?: string;
+      }
+  > | null;
   footerLinks: Array<{
     _key: string;
     label: string;
@@ -951,10 +1038,12 @@ export type SITE_SETTINGS_QUERY_RESULT = {
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    '\n  *[_type == "page" && slug.current == $slug][0]{\n    _id,\n    title,\n    "slug": slug.current,\n    modules[]{ \n  _type,\n  _key,\n  _type == "hero" => {\n    backgroundType,\n    slides[]{\n      _key,\n      image,\n      headline,\n      text,\n      link{ \n  _key,\n  label,\n  linkType,\n  openInNewTab,\n  externalUrl,\n  internalLink->{ "slug": slug.current }\n }\n    },\n    backgroundVideo{ \n  sourceType,\n  file{ asset-> },\n  url\n },\n    headline,\n    text,\n    link{ \n  _key,\n  label,\n  linkType,\n  openInNewTab,\n  externalUrl,\n  internalLink->{ "slug": slug.current }\n }\n  },\n  _type == "pageHero" => {\n    headline,\n    image\n  },\n  _type == "textBlock" => {\n    heading,\n    content[]{ \n  ...,\n  _type == "richTextImage" => {\n    ...,\n    asset->\n  }\n },\n    width\n  },\n  _type == "textMedia" => {\n    mediaType,\n    image,\n    video{ \n  sourceType,\n  file{ asset-> },\n  url\n },\n    content[]{ \n  ...,\n  _type == "richTextImage" => {\n    ...,\n    asset->\n  }\n },\n    mediaPosition\n  },\n  _type == "accordion" => {\n    heading,\n    items[]{ _key, title, content[]{ \n  ...,\n  _type == "richTextImage" => {\n    ...,\n    asset->\n  }\n } }\n  },\n  _type == "itemGrid" => {\n    heading,\n    columns,\n    source,\n    pageSize,\n    items[]{\n      _key,\n      _type == "reference" => @->{\n        _type,\n        _id,\n        title,\n        year,\n        dimensions,\n        type,\n        category,\n        price,\n        image,\n        active\n      },\n      _type == "gridItem" => {\n        _type,\n        image,\n        title,\n        text,\n        link{ \n  _key,\n  label,\n  linkType,\n  openInNewTab,\n  externalUrl,\n  internalLink->{ "slug": slug.current }\n }\n      }\n    }\n  },\n  _type == "media" => {\n    mediaType,\n    image,\n    video{ \n  sourceType,\n  file{ asset-> },\n  url\n },\n    caption\n  },\n  _type == "cta" => {\n    heading,\n    text,\n    link{ \n  _key,\n  label,\n  linkType,\n  openInNewTab,\n  externalUrl,\n  internalLink->{ "slug": slug.current }\n },\n    background\n  }\n },\n    seo\n  }\n': PAGE_QUERY_RESULT;
+    '\n  *[_type == "page" && slug.current == $slug][0]{\n    _id,\n    title,\n    "slug": slug.current,\n    modules[]{ \n  _type,\n  _key,\n  _type == "hero" => {\n    backgroundType,\n    slides[]{\n      _key,\n      image,\n      headline,\n      text,\n      link{ \n  _key,\n  label,\n  linkType,\n  openInNewTab,\n  externalUrl,\n  internalLink->{ "slug": slug.current }\n }\n    },\n    backgroundVideo{ \n  sourceType,\n  file{ asset-> },\n  url\n },\n    headline,\n    text,\n    link{ \n  _key,\n  label,\n  linkType,\n  openInNewTab,\n  externalUrl,\n  internalLink->{ "slug": slug.current }\n }\n  },\n  _type == "pageHero" => {\n    headline,\n    image\n  },\n  _type == "textBlock" => {\n    heading,\n    content[]{ \n  ...,\n  _type == "richTextImage" => {\n    ...,\n    asset->\n  }\n },\n    width\n  },\n  _type == "textMedia" => {\n    mediaType,\n    image,\n    video{ \n  sourceType,\n  file{ asset-> },\n  url\n },\n    content[]{ \n  ...,\n  _type == "richTextImage" => {\n    ...,\n    asset->\n  }\n },\n    mediaPosition\n  },\n  _type == "accordion" => {\n    heading,\n    items[]{ _key, title, content[]{ \n  ...,\n  _type == "richTextImage" => {\n    ...,\n    asset->\n  }\n } }\n  },\n  _type == "itemGrid" => {\n    heading,\n    columns,\n    source,\n    pageSize,\n    items[]{\n      _key,\n      _type == "reference" => @->{\n        \n  _type,\n  _id,\n  title,\n  "slug": slug.current,\n  year,\n  dimensions,\n  type,\n  category,\n  price,\n  forSale,\n  image\n,\n        active\n      },\n      _type == "gridItem" => {\n        _type,\n        image,\n        title,\n        text,\n        link{ \n  _key,\n  label,\n  linkType,\n  openInNewTab,\n  externalUrl,\n  internalLink->{ "slug": slug.current }\n }\n      }\n    }\n  },\n  _type == "media" => {\n    mediaType,\n    image,\n    video{ \n  sourceType,\n  file{ asset-> },\n  url\n },\n    caption\n  },\n  _type == "cta" => {\n    heading,\n    text,\n    link{ \n  _key,\n  label,\n  linkType,\n  openInNewTab,\n  externalUrl,\n  internalLink->{ "slug": slug.current }\n },\n    background\n  }\n },\n    seo\n  }\n': PAGE_QUERY_RESULT;
     '\n  *[_type == "page" && defined(slug.current)]{ "slug": slug.current }\n': PAGE_SLUGS_QUERY_RESULT;
     '\n  *[_type == "page" && showInNav == true] | order(coalesce(navOrder, 9999) asc) {\n    title,\n    "slug": slug.current\n  }\n': NAV_PAGES_QUERY_RESULT;
-    '\n  *[\n    _type == "artwork" && active == true\n    && ($category == "all" || category == $category)\n    && ($forSaleOnly != true || forSale == true)\n  ]\n    | order(coalesce(year, 0) desc)\n    [$start...$end]{\n      _type,\n      _id,\n      title,\n      year,\n      dimensions,\n      type,\n      category,\n      price,\n      forSale,\n      image\n    }\n': ACTIVE_ARTWORKS_PAGE_QUERY_RESULT;
-    '\n  *[_type == "siteSettings"][0]{\n    title,\n    description,\n    logo,\n    footerText,\n    footerLinks[]{ \n  _key,\n  label,\n  linkType,\n  openInNewTab,\n  externalUrl,\n  internalLink->{ "slug": slug.current }\n },\n    socialLinks[]{ \n  _key,\n  label,\n  linkType,\n  openInNewTab,\n  externalUrl,\n  internalLink->{ "slug": slug.current }\n }\n  }\n': SITE_SETTINGS_QUERY_RESULT;
+    '\n  *[\n    _type == "artwork" && active == true\n    && ($category == "all" || category == $category)\n    && ($forSaleOnly != true || forSale == true)\n  ]\n    | order(coalesce(year, 0) desc)\n    [$start...$end]{\n      \n  _type,\n  _id,\n  title,\n  "slug": slug.current,\n  year,\n  dimensions,\n  type,\n  category,\n  price,\n  forSale,\n  image\n\n    }\n': ACTIVE_ARTWORKS_PAGE_QUERY_RESULT;
+    '\n  *[_type == "artwork" && active == true && defined(slug.current)]{\n    "slug": slug.current\n  }\n': ARTWORK_SLUGS_QUERY_RESULT;
+    '\n  *[_type == "artwork" && slug.current == $slug && active == true][0]{\n    _id,\n    title,\n    "slug": slug.current,\n    year,\n    dimensions,\n    type,\n    category,\n    price,\n    forSale,\n    image{\n      ...,\n      "dimensions": asset->metadata.dimensions\n    }\n  }\n': ARTWORK_QUERY_RESULT;
+    '\n  *[_type == "siteSettings"][0]{\n    title,\n    description,\n    logo,\n    footerText,\n    footerContent[]{ \n  ...,\n  _type == "richTextImage" => {\n    ...,\n    asset->\n  }\n },\n    footerLinks[]{ \n  _key,\n  label,\n  linkType,\n  openInNewTab,\n  externalUrl,\n  internalLink->{ "slug": slug.current }\n },\n    socialLinks[]{ \n  _key,\n  label,\n  linkType,\n  openInNewTab,\n  externalUrl,\n  internalLink->{ "slug": slug.current }\n }\n  }\n': SITE_SETTINGS_QUERY_RESULT;
   }
 }

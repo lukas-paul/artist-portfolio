@@ -1,18 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 
 import { ItemCard } from "@/components/modules/ItemCard";
 import { columnClasses, type GridColumns } from "@/components/modules/gridColumns";
 import { fetchMoreActiveArtworks } from "@/sanity/lib/actions";
+import { ARTWORK_CATEGORIES } from "@/sanity/lib/categories";
 import { dataAttr } from "@/sanity/lib/dataAttr";
 import type { ActiveArtwork } from "@/sanity/lib/types";
 
 const CATEGORY_FILTERS = [
   { label: "All", value: "all" },
-  { label: "Spuren", value: "spuren" },
-  { label: "Draußen", value: "draussen" },
-  { label: "Stories", value: "stories" },
+  ...ARTWORK_CATEGORIES.map((category) => ({ ...category })),
 ];
 
 export function InfiniteItemGrid({
@@ -122,19 +122,29 @@ export function InfiniteItemGrid({
             isPending ? "opacity-50" : ""
           }`}
         >
-          {items.map((item) => (
-            <ItemCard
-              key={item._id}
-              image={item.image}
-              title={item.title}
-              year={item.year}
-              dimensions={item.dimensions}
-              type={item.type}
-              price={item.price}
-              dataSanityImage={dataAttr({ id: item._id, type: "artwork", path: "image" })}
-              dataSanityTitle={dataAttr({ id: item._id, type: "artwork", path: "title" })}
-            />
-          ))}
+          {items.map((item) => {
+            const card = (
+              <ItemCard
+                image={item.image}
+                title={item.title}
+                year={item.year}
+                dimensions={item.dimensions}
+                type={item.type}
+                price={item.price}
+                forSale={item.forSale}
+                dataSanityImage={dataAttr({ id: item._id, type: "artwork", path: "image" })}
+                dataSanityTitle={dataAttr({ id: item._id, type: "artwork", path: "title" })}
+              />
+            );
+
+            return item.slug ? (
+              <Link key={item._id} href={`/artwork/${item.slug}`} className="block">
+                {card}
+              </Link>
+            ) : (
+              <div key={item._id}>{card}</div>
+            );
+          })}
         </div>
       )}
       {hasMore && items.length > 0 && (

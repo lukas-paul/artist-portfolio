@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { CmsLink } from "@/components/ui/CmsLink";
 import { ItemCard } from "@/components/modules/ItemCard";
 import { InfiniteItemGrid } from "@/components/modules/InfiniteItemGrid";
@@ -77,11 +79,20 @@ export async function ItemGrid({
               dimensions={isArtwork ? item.dimensions : undefined}
               type={isArtwork ? item.type : undefined}
               price={isArtwork ? item.price : undefined}
+              forSale={isArtwork ? item.forSale : undefined}
               dataSanityImage={dataAttr({ id: cardId, type: cardType, path: fieldPath("image") })}
               dataSanityTitle={dataAttr({ id: cardId, type: cardType, path: fieldPath("title") })}
               dataSanityText={dataAttr({ id: cardId, type: cardType, path: fieldPath("text") })}
             />
           );
+
+          if (isArtwork && item.slug) {
+            return (
+              <Link key={item._key} href={`/artwork/${item.slug}`} className="block">
+                {card}
+              </Link>
+            );
+          }
 
           return item._type === "gridItem" && item.link ? (
             <CmsLink key={item._key} link={item.link} className="block">

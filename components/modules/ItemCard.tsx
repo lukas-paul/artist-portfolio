@@ -1,14 +1,7 @@
 import type { SanityImageSource } from "@sanity/image-url";
 
 import { SanityImage } from "@/components/ui/SanityImage";
-
-function formatPrice(price: number) {
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(price);
-}
+import { formatPrice } from "@/sanity/lib/format";
 
 export function ItemCard({
   image,
@@ -18,6 +11,7 @@ export function ItemCard({
   dimensions,
   type,
   price,
+  forSale,
   dataSanityImage,
   dataSanityTitle,
   dataSanityText,
@@ -29,6 +23,7 @@ export function ItemCard({
   dimensions?: string | null;
   type?: string | null;
   price?: number | null;
+  forSale?: boolean | null;
   dataSanityImage?: string;
   dataSanityTitle?: string;
   dataSanityText?: string;
@@ -52,7 +47,7 @@ export function ItemCard({
         {title}
       </h3>
       {details && <p className="mt-1 text-sm opacity-70">{details}</p>}
-      {price != null && (
+      {forSale && price != null && (
         <p className="mt-1 text-sm opacity-70">{formatPrice(price)}</p>
       )}
       {text && (

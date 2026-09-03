@@ -9,6 +9,8 @@ export function SanityImage({
   sizes = "100vw",
   className,
   fill = true,
+  width,
+  height,
   priority,
 }: {
   image?: SanityImageSource | null;
@@ -16,17 +18,33 @@ export function SanityImage({
   sizes?: string;
   className?: string;
   fill?: boolean;
+  /** Required when `fill` is false. */
+  width?: number;
+  height?: number;
   priority?: boolean;
 }) {
   if (!image) return null;
 
-  const src = urlFor(image).auto("format").fit("max").url();
+  if (!fill) {
+    if (!width || !height) return null;
+    return (
+      <Image
+        src={urlFor(image).width(2000).auto("format").url()}
+        alt={alt}
+        width={width}
+        height={height}
+        sizes={sizes}
+        className={className}
+        priority={priority}
+      />
+    );
+  }
 
   return (
     <Image
-      src={src}
+      src={urlFor(image).auto("format").fit("max").url()}
       alt={alt}
-      fill={fill}
+      fill
       sizes={sizes}
       className={className}
       priority={priority}

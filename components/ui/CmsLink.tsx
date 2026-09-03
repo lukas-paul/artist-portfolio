@@ -8,7 +8,7 @@ export interface LinkLike {
   openInNewTab?: boolean | null;
 }
 
-function resolveHref(link?: LinkLike | null): string | undefined {
+export function resolveHref(link?: LinkLike | null): string | undefined {
   if (!link) return undefined;
   if (link.linkType === "external") return link.externalUrl ?? undefined;
   const slug = link.internalLink?.slug;

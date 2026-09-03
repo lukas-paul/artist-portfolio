@@ -23,6 +23,20 @@ const videoSourceFields = /* groq */ `
   url
 `;
 
+const artworkCardFields = /* groq */ `
+  _type,
+  _id,
+  title,
+  "slug": slug.current,
+  year,
+  dimensions,
+  type,
+  category,
+  price,
+  forSale,
+  image
+`;
+
 const moduleFields = /* groq */ `
   _type,
   _key,
@@ -68,15 +82,7 @@ const moduleFields = /* groq */ `
     items[]{
       _key,
       _type == "reference" => @->{
-        _type,
-        _id,
-        title,
-        year,
-        dimensions,
-        type,
-        category,
-        price,
-        image,
+        ${artworkCardFields},
         active
       },
       _type == "gridItem" => {
@@ -131,17 +137,32 @@ export const ACTIVE_ARTWORKS_PAGE_QUERY = defineQuery(/* groq */ `
   ]
     | order(coalesce(year, 0) desc)
     [$start...$end]{
-      _type,
-      _id,
-      title,
-      year,
-      dimensions,
-      type,
-      category,
-      price,
-      forSale,
-      image
+      ${artworkCardFields}
     }
+`);
+
+export const ARTWORK_SLUGS_QUERY = defineQuery(/* groq */ `
+  *[_type == "artwork" && active == true && defined(slug.current)]{
+    "slug": slug.current
+  }
+`);
+
+export const ARTWORK_QUERY = defineQuery(/* groq */ `
+  *[_type == "artwork" && slug.current == $slug && active == true][0]{
+    _id,
+    title,
+    "slug": slug.current,
+    year,
+    dimensions,
+    type,
+    category,
+    price,
+    forSale,
+    image{
+      ...,
+      "dimensions": asset->metadata.dimensions
+    }
+  }
 `);
 
 export const SITE_SETTINGS_QUERY = defineQuery(/* groq */ `
@@ -150,6 +171,7 @@ export const SITE_SETTINGS_QUERY = defineQuery(/* groq */ `
     description,
     logo,
     footerText,
+    footerContent[]{ ${blockContentFields} },
     footerLinks[]{ ${linkFields} },
     socialLinks[]{ ${linkFields} }
   }

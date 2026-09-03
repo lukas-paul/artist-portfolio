@@ -1,6 +1,8 @@
 import { ImageIcon } from "@sanity/icons/Image";
 import { defineField, defineType } from "sanity";
 
+import { ARTWORK_CATEGORIES } from "../../lib/categories";
+
 export const artwork = defineType({
   name: "artwork",
   title: "Artwork",
@@ -13,6 +15,14 @@ export const artwork = defineType({
       name: "title",
       title: "Title",
       type: "string",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "slug",
+      title: "Slug",
+      type: "slug",
+      description: "Used for the artwork's page URL (/artwork/…).",
+      options: { source: "title", maxLength: 96 },
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -39,11 +49,10 @@ export const artwork = defineType({
       title: "Category",
       type: "string",
       options: {
-        list: [
-          { title: "Spuren", value: "spuren" },
-          { title: "Draußen", value: "draussen" },
-          { title: "Stories", value: "stories" },
-        ],
+        list: ARTWORK_CATEGORIES.map((category) => ({
+          title: category.label,
+          value: category.value,
+        })),
         layout: "radio",
       },
     }),

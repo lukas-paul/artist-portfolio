@@ -26,10 +26,19 @@ export const siteSettings = defineType({
       type: "image",
     }),
     defineField({
-      name: "footerText",
+      name: "footerContent",
       title: "Footer text",
+      type: "blockContent",
+      description:
+        "Shown in the first footer column — e.g. a contact block or copyright line. Leave empty to omit.",
+    }),
+    defineField({
+      name: "footerText",
+      title: "Footer text (legacy)",
       type: "string",
-      description: "e.g. a copyright line. Leave empty to omit.",
+      deprecated: { reason: 'Use the "Footer text" block field instead.' },
+      readOnly: true,
+      hidden: ({ value }) => value === undefined,
     }),
     defineField({
       name: "footerLinks",
