@@ -14,7 +14,7 @@ export function HeadlineHero({
 }) {
   return (
     <section data-sanity={dataSanityRoot} className="mx-auto max-w-5xl px-6">
-      <div className="relative flex min-h-[70vh] items-center justify-center overflow-hidden">
+      <div className="relative flex min-h-[60vh] items-center justify-center overflow-hidden">
         <h1
           data-sanity={dataSanityHeadline}
           className="relative z-10 max-w-3xl text-center text-4xl font-semibold tracking-tight sm:text-6xl"

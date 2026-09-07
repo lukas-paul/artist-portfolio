@@ -30,7 +30,7 @@ export function PageHero({
 
   return (
     <section data-sanity={rootAttr} className="mx-auto max-w-5xl px-6">
-      <div className="relative flex min-h-[70vh] items-end justify-start overflow-hidden bg-black text-white">
+      <div className="relative flex min-h-[60vh] items-end justify-start overflow-hidden bg-black text-white">
         <SanityImage
           image={module.image}
           alt={module.headline}
