@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { ArtworkImage } from "@/components/modules/ArtworkImage";
 import { SaleInquiry } from "@/components/modules/SaleInquiry";
-import { SanityImage } from "@/components/ui/SanityImage";
 import { categoryLabel } from "@/sanity/lib/categories";
 import { client } from "@/sanity/lib/client";
 import { urlFor } from "@/sanity/lib/image";
@@ -82,15 +82,11 @@ export default async function ArtworkPage({
   return (
     <article className="mx-auto max-w-5xl px-6 py-16">
       {artwork.image && (
-        <SanityImage
+        <ArtworkImage
           image={artwork.image}
           alt={artwork.title}
-          fill={false}
           width={dimensions?.width ?? 1600}
           height={dimensions?.height ?? 1200}
-          sizes="(min-width: 1024px) 1024px, 100vw"
-          className="h-[70vh] w-auto max-w-full object-contain"
-          priority
         />
       )}
 
