@@ -78,8 +78,6 @@ export async function ItemGrid({
               year={isArtwork ? item.year : undefined}
               dimensions={isArtwork ? item.dimensions : undefined}
               type={isArtwork ? item.type : undefined}
-              price={isArtwork ? item.price : undefined}
-              forSale={isArtwork ? item.forSale : undefined}
               dataSanityImage={dataAttr({ id: cardId, type: cardType, path: fieldPath("image") })}
               dataSanityTitle={dataAttr({ id: cardId, type: cardType, path: fieldPath("title") })}
               dataSanityText={dataAttr({ id: cardId, type: cardType, path: fieldPath("text") })}

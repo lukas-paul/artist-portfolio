@@ -5,6 +5,7 @@ import { page } from "./documents/page";
 import { siteSettings } from "./documents/siteSettings";
 import { accordion } from "./objects/accordion";
 import { blockContent } from "./objects/blockContent";
+import { categoryTeasers } from "./objects/categoryTeasers";
 import { cta } from "./objects/cta";
 import { hero } from "./objects/hero";
 import { itemGrid } from "./objects/itemGrid";
@@ -36,6 +37,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     textMedia,
     accordion,
     itemGrid,
+    categoryTeasers,
     media,
     cta,
   ],

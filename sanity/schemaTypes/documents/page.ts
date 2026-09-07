@@ -49,6 +49,7 @@ export const page = defineType({
         defineArrayMember({ type: "textMedia" }),
         defineArrayMember({ type: "accordion" }),
         defineArrayMember({ type: "itemGrid" }),
+        defineArrayMember({ type: "categoryTeasers" }),
         defineArrayMember({ type: "media" }),
         defineArrayMember({ type: "cta" }),
       ],

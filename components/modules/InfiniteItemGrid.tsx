@@ -19,12 +19,20 @@ export function InfiniteItemGrid({
   initialItems,
   pageSize,
   columns,
+  fixedCategory,
+  showCategoryFilter = true,
+  showForSaleFilter = true,
 }: {
   initialItems: ActiveArtwork[];
   pageSize: number;
   columns: GridColumns;
+  /** Lock the grid to one category and hide the category buttons. */
+  fixedCategory?: string;
+  showCategoryFilter?: boolean;
+  /** Hide the "zu verkaufen" checkbox, e.g. when nothing in the list is for sale. */
+  showForSaleFilter?: boolean;
 }) {
-  const [category, setCategory] = useState("all");
+  const [category, setCategory] = useState(fixedCategory ?? "all");
   const [forSaleOnly, setForSaleOnly] = useState(false);
   const [items, setItems] = useState(initialItems);
   const [hasMore, setHasMore] = useState(initialItems.length === pageSize);
@@ -84,34 +92,40 @@ export function InfiniteItemGrid({
 
   return (
     <>
-      <div className="mb-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[1.75rem] leading-tight">
-        <div className="flex flex-wrap justify-center gap-4">
-          {CATEGORY_FILTERS.map((filter) => (
-            <button
-              key={filter.value}
-              type="button"
-              onClick={() => setCategory(filter.value)}
-              aria-pressed={category === filter.value}
-              className={
-                category === filter.value
-                  ? "underline underline-offset-4"
-                  : "opacity-60 hover:opacity-100"
-              }
-            >
-              {filter.label}
-            </button>
-          ))}
+      {(showCategoryFilter || showForSaleFilter) && (
+        <div className="mb-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[1.75rem] leading-tight">
+          {showCategoryFilter && (
+            <div className="flex flex-wrap justify-center gap-4">
+              {CATEGORY_FILTERS.map((filter) => (
+                <button
+                  key={filter.value}
+                  type="button"
+                  onClick={() => setCategory(filter.value)}
+                  aria-pressed={category === filter.value}
+                  className={
+                    category === filter.value
+                      ? "underline underline-offset-4"
+                      : "opacity-60 hover:opacity-100"
+                  }
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+          )}
+          {showForSaleFilter && (
+            <label className="flex cursor-pointer items-center gap-2 text-base leading-normal opacity-60 hover:opacity-100 sm:ml-auto">
+              <input
+                type="checkbox"
+                checked={forSaleOnly}
+                onChange={(event) => setForSaleOnly(event.target.checked)}
+                className="h-4 w-4 shrink-0 appearance-none border border-black bg-white checked:bg-black"
+              />
+              zu verkaufen
+            </label>
+          )}
         </div>
-        <label className="flex cursor-pointer items-center gap-2 opacity-60 hover:opacity-100">
-          <input
-            type="checkbox"
-            checked={forSaleOnly}
-            onChange={(event) => setForSaleOnly(event.target.checked)}
-            className="h-6 w-6 shrink-0 appearance-none border border-black bg-white checked:bg-black"
-          />
-          For sale only
-        </label>
-      </div>
+      )}
 
       {items.length === 0 ? (
         <p className="py-8 text-sm opacity-60">No artworks match these filters.</p>
@@ -130,8 +144,6 @@ export function InfiniteItemGrid({
                 year={item.year}
                 dimensions={item.dimensions}
                 type={item.type}
-                price={item.price}
-                forSale={item.forSale}
                 dataSanityImage={dataAttr({ id: item._id, type: "artwork", path: "image" })}
                 dataSanityTitle={dataAttr({ id: item._id, type: "artwork", path: "title" })}
               />

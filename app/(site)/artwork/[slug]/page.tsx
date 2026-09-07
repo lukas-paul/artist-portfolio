@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { SaleInquiry } from "@/components/modules/SaleInquiry";
 import { SanityImage } from "@/components/ui/SanityImage";
 import { categoryLabel } from "@/sanity/lib/categories";
 import { client } from "@/sanity/lib/client";
-import { formatPrice } from "@/sanity/lib/format";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
-import { ARTWORK_QUERY, ARTWORK_SLUGS_QUERY } from "@/sanity/lib/queries";
+import {
+  ARTWORK_QUERY,
+  ARTWORK_SLUGS_QUERY,
+  SALE_INQUIRY_QUERY,
+} from "@/sanity/lib/queries";
 
 export async function generateStaticParams() {
   const artworks = await client.fetch(ARTWORK_SLUGS_QUERY);
@@ -65,15 +69,15 @@ export default async function ArtworkPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const { data: artwork } = await sanityFetch({
-    query: ARTWORK_QUERY,
-    params: { slug },
-    stega: false,
-  });
+  const [{ data: artwork }, { data: inquiryData }] = await Promise.all([
+    sanityFetch({ query: ARTWORK_QUERY, params: { slug }, stega: false }),
+    sanityFetch({ query: SALE_INQUIRY_QUERY, stega: false }),
+  ]);
 
   if (!artwork) notFound();
 
   const dimensions = artwork.image?.dimensions;
+  const saleInquiry = inquiryData?.saleInquiry;
 
   return (
     <article className="mx-auto max-w-5xl px-6 py-16">
@@ -85,7 +89,7 @@ export default async function ArtworkPage({
           width={dimensions?.width ?? 1600}
           height={dimensions?.height ?? 1200}
           sizes="(min-width: 1024px) 1024px, 100vw"
-          className="h-auto w-full"
+          className="h-[70vh] w-auto max-w-full object-contain"
           priority
         />
       )}
@@ -99,10 +103,15 @@ export default async function ArtworkPage({
         <Detail label="Medium" value={artwork.type} />
         <Detail label="Dimensions" value={artwork.dimensions} />
         <Detail label="Category" value={categoryLabel(artwork.category)} />
-        {artwork.forSale && artwork.price != null && (
-          <Detail label="Price" value={formatPrice(artwork.price)} />
-        )}
       </dl>
+
+      {artwork.forSale && artwork.price != null && saleInquiry && (
+        <SaleInquiry
+          price={artwork.price}
+          artworkTitle={artwork.title}
+          config={saleInquiry}
+        />
+      )}
     </article>
   );
 }

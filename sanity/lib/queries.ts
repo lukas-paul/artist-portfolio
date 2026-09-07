@@ -94,6 +94,10 @@ const moduleFields = /* groq */ `
       }
     }
   },
+  _type == "categoryTeasers" => {
+    heading,
+    teasers[]{ _key, category, image, text }
+  },
   _type == "media" => {
     mediaType,
     image,
@@ -141,6 +145,12 @@ export const ACTIVE_ARTWORKS_PAGE_QUERY = defineQuery(/* groq */ `
     }
 `);
 
+export const CATEGORY_FOR_SALE_COUNT_QUERY = defineQuery(/* groq */ `
+  count(*[
+    _type == "artwork" && active == true && category == $category && forSale == true
+  ])
+`);
+
 export const ARTWORK_SLUGS_QUERY = defineQuery(/* groq */ `
   *[_type == "artwork" && active == true && defined(slug.current)]{
     "slug": slug.current
@@ -161,6 +171,17 @@ export const ARTWORK_QUERY = defineQuery(/* groq */ `
     image{
       ...,
       "dimensions": asset->metadata.dimensions
+    }
+  }
+`);
+
+export const SALE_INQUIRY_QUERY = defineQuery(/* groq */ `
+  *[_type == "siteSettings"][0]{
+    saleInquiry{
+      buttonLabel,
+      heading,
+      email,
+      body[]{ ${blockContentFields} }
     }
   }
 `);
