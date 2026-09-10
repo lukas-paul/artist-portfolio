@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { HeadlineHero } from "@/components/modules/HeadlineHero";
 import { InfiniteItemGrid } from "@/components/modules/InfiniteItemGrid";
 import { ARTWORK_CATEGORIES, categoryLabel } from "@/sanity/lib/categories";
-import { client } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/live";
 import {
   ACTIVE_ARTWORKS_PAGE_QUERY,
   CATEGORY_FOR_SALE_COUNT_QUERY,
@@ -38,14 +38,17 @@ export default async function CategoryPage({
   const { category } = await params;
   if (!isValidCategory(category)) notFound();
 
-  const [firstPage, forSaleCount] = await Promise.all([
-    client.fetch(ACTIVE_ARTWORKS_PAGE_QUERY, {
-      start: 0,
-      end: PAGE_SIZE,
-      category,
-      forSaleOnly: false,
+  const [{ data: firstPage }, { data: forSaleCount }] = await Promise.all([
+    sanityFetch({
+      query: ACTIVE_ARTWORKS_PAGE_QUERY,
+      params: { start: 0, end: PAGE_SIZE, category, forSaleOnly: false },
+      stega: false,
     }),
-    client.fetch(CATEGORY_FOR_SALE_COUNT_QUERY, { category }),
+    sanityFetch({
+      query: CATEGORY_FOR_SALE_COUNT_QUERY,
+      params: { category },
+      stega: false,
+    }),
   ]);
 
   return (
@@ -53,12 +56,12 @@ export default async function CategoryPage({
       <HeadlineHero headline={categoryLabel(category)} />
       <section className="mx-auto max-w-5xl px-6 py-16">
         <InfiniteItemGrid
-          initialItems={firstPage}
+          initialItems={firstPage ?? []}
           pageSize={PAGE_SIZE}
           columns="3"
           fixedCategory={category}
           showCategoryFilter={false}
-          showForSaleFilter={forSaleCount > 0}
+          showForSaleFilter={(forSaleCount ?? 0) > 0}
         />
       </section>
     </>
