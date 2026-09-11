@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CmsLink } from "@/components/ui/CmsLink";
 import { ItemCard } from "@/components/modules/ItemCard";
 import { InfiniteItemGrid } from "@/components/modules/InfiniteItemGrid";
-import { columnClasses } from "@/components/modules/gridColumns";
+import { columnClasses, gridItemSizes } from "@/components/modules/gridColumns";
 import { client } from "@/sanity/lib/client";
 import { dataAttr } from "@/sanity/lib/dataAttr";
 import { ACTIVE_ARTWORKS_PAGE_QUERY } from "@/sanity/lib/queries";
@@ -78,6 +78,7 @@ export async function ItemGrid({
               year={isArtwork ? item.year : undefined}
               dimensions={isArtwork ? item.dimensions : undefined}
               type={isArtwork ? item.type : undefined}
+              sizes={gridItemSizes(columns)}
               dataSanityImage={dataAttr({ id: cardId, type: cardType, path: fieldPath("image") })}
               dataSanityTitle={dataAttr({ id: cardId, type: cardType, path: fieldPath("title") })}
               dataSanityText={dataAttr({ id: cardId, type: cardType, path: fieldPath("text") })}

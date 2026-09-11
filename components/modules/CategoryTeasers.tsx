@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { SanityImage } from "@/components/ui/SanityImage";
-import { columnClasses } from "@/components/modules/gridColumns";
+import { columnClasses, gridItemSizes } from "@/components/modules/gridColumns";
 import { ARTWORK_CATEGORIES, categoryLabel } from "@/sanity/lib/categories";
 import { dataAttr } from "@/sanity/lib/dataAttr";
 import type { CategoryTeasersModule } from "@/sanity/lib/types";
@@ -56,6 +56,7 @@ export function CategoryTeasers({
                 <SanityImage
                   image={teaser.image}
                   alt={categoryLabel(teaser.category)}
+                  sizes={gridItemSizes("3")}
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               )}

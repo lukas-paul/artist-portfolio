@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 
 import { ItemCard } from "@/components/modules/ItemCard";
-import { columnClasses, type GridColumns } from "@/components/modules/gridColumns";
+import {
+  columnClasses,
+  gridItemSizes,
+  type GridColumns,
+} from "@/components/modules/gridColumns";
 import { fetchMoreActiveArtworks } from "@/sanity/lib/actions";
 import { ARTWORK_CATEGORIES } from "@/sanity/lib/categories";
 import { dataAttr } from "@/sanity/lib/dataAttr";
@@ -144,6 +148,7 @@ export function InfiniteItemGrid({
                 year={item.year}
                 dimensions={item.dimensions}
                 type={item.type}
+                sizes={gridItemSizes(columns)}
                 dataSanityImage={dataAttr({ id: item._id, type: "artwork", path: "image" })}
                 dataSanityTitle={dataAttr({ id: item._id, type: "artwork", path: "title" })}
               />

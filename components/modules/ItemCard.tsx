@@ -9,6 +9,7 @@ export function ItemCard({
   year,
   dimensions,
   type,
+  sizes,
   dataSanityImage,
   dataSanityTitle,
   dataSanityText,
@@ -19,6 +20,8 @@ export function ItemCard({
   year?: number | null;
   dimensions?: string | null;
   type?: string | null;
+  /** Rendered card width per breakpoint; see `gridItemSizes`. */
+  sizes?: string;
   dataSanityImage?: string;
   dataSanityTitle?: string;
   dataSanityText?: string;
@@ -32,7 +35,7 @@ export function ItemCard({
           data-sanity={dataSanityImage}
           className="relative mb-4 aspect-[4/3] w-full bg-black/5"
         >
-          <SanityImage image={image} alt={title} className="object-cover" />
+          <SanityImage image={image} alt={title} sizes={sizes} className="object-cover" />
         </div>
       )}
       {year != null && (
