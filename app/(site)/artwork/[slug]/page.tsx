@@ -12,6 +12,7 @@ import {
   ARTWORK_SLUGS_QUERY,
   SALE_INQUIRY_QUERY,
 } from "@/sanity/lib/queries";
+import { artworkDescription, buildMetadata } from "@/sanity/lib/seo";
 
 export async function generateStaticParams() {
   const artworks = await client.fetch(ARTWORK_SLUGS_QUERY);
@@ -35,16 +36,14 @@ export async function generateMetadata({
 
   if (!artwork) return {};
 
-  return {
+  return buildMetadata({
     title: artwork.title,
-    openGraph: artwork.image
-      ? {
-          images: [
-            { url: urlFor(artwork.image).width(1200).height(1200).fit("max").url() },
-          ],
-        }
+    description: artworkDescription(artwork),
+    path: `/artwork/${slug}`,
+    image: artwork.image
+      ? urlFor(artwork.image).width(1200).height(1200).fit("max").url()
       : undefined,
-  };
+  });
 }
 
 function Detail({

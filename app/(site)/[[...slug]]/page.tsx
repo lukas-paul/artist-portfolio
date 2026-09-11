@@ -6,6 +6,8 @@ import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
 import { client } from "@/sanity/lib/client";
 import { PAGE_QUERY, PAGE_SLUGS_QUERY } from "@/sanity/lib/queries";
+import { buildMetadata } from "@/sanity/lib/seo";
+import { siteDescription } from "@/sanity/lib/site";
 
 export async function generateStaticParams() {
   const pages = await client.fetch(PAGE_SLUGS_QUERY);
@@ -33,13 +35,14 @@ export async function generateMetadata({
 
   if (!page) return {};
 
-  return {
+  return buildMetadata({
     title: page.seo?.metaTitle || page.title,
-    description: page.seo?.metaDescription,
-    openGraph: page.seo?.ogImage
-      ? { images: [{ url: urlFor(page.seo.ogImage).width(1200).height(630).url() }] }
+    description: page.seo?.metaDescription || siteDescription,
+    path: slug && slug.length > 0 ? `/${slug.join("/")}` : "/",
+    image: page.seo?.ogImage
+      ? urlFor(page.seo.ogImage).width(1200).height(630).url()
       : undefined,
-  };
+  });
 }
 
 export default async function Page({

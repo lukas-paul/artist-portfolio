@@ -7,6 +7,7 @@ import { Header } from "@/components/layout/Header";
 import { SanityLive } from "@/sanity/lib/live";
 import { NAV_PAGES_QUERY, SITE_SETTINGS_QUERY } from "@/sanity/lib/queries";
 import { sanityFetch } from "@/sanity/lib/live";
+import { siteDescription, siteName, siteUrl } from "@/sanity/lib/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { data: settings } = await sanityFetch({
@@ -14,12 +15,32 @@ export async function generateMetadata(): Promise<Metadata> {
     stega: false,
   });
 
+  const title = settings?.title ?? siteName;
+  const description = settings?.description ?? siteDescription;
+
+  // Site-wide defaults; individual pages build their own complete
+  // `openGraph`/`twitter` (see sanity/lib/seo.ts) since Next.js replaces
+  // these nested objects wholesale rather than merging them.
   return {
+    metadataBase: new URL(siteUrl),
     title: {
-      default: settings?.title ?? "Portfolio",
-      template: `%s · ${settings?.title ?? "Portfolio"}`,
+      default: title,
+      template: `%s · ${title}`,
     },
-    description: settings?.description,
+    description,
+    openGraph: {
+      type: "website",
+      url: siteUrl,
+      siteName: title,
+      locale: "de_DE",
+      title,
+      description,
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
   };
 }
 

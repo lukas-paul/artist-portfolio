@@ -1,0 +1,7 @@
+# Redirect the default *.netlify.app hostname to the custom domain so the
+# site isn't indexable/reachable under two different hostnames.
+[[redirects]]
+  from = "https://stephfrenzer.netlify.app/*"
+  to = "https://stephfrenzer.de/:splat"
+  status = 301
+  force = true

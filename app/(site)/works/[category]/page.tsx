@@ -9,6 +9,8 @@ import {
   ACTIVE_ARTWORKS_PAGE_QUERY,
   CATEGORY_FOR_SALE_COUNT_QUERY,
 } from "@/sanity/lib/queries";
+import { buildMetadata } from "@/sanity/lib/seo";
+import { siteName } from "@/sanity/lib/site";
 
 const PAGE_SIZE = 12;
 
@@ -27,7 +29,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { category } = await params;
   if (!isValidCategory(category)) return {};
-  return { title: categoryLabel(category) };
+
+  const label = categoryLabel(category);
+  return buildMetadata({
+    title: label,
+    description: `Werke aus der Serie „${label}“ von ${siteName}.`,
+    path: `/works/${category}`,
+  });
 }
 
 export default async function CategoryPage({
